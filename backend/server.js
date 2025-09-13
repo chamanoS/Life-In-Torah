@@ -7,9 +7,24 @@ app.use(express.json());
 
 // Dummy data (later we’ll hook this to SQL Server)
 let books = [
-  { id: 1, title: "Book of Genesis", author: "Moses", description: "Torah scroll beginnings", reviews: [] },
-  { id: 2, title: "Exodus", author: "Moses", description: "Israel’s redemption story", reviews: [] }
+  { 
+    id: 1, 
+    title: "Book of Genesis", 
+    author: "Moses", 
+    description: "Torah scroll beginnings", 
+    cover: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Torah_scroll.jpg/220px-Torah_scroll.jpg",
+    reviews: [] 
+  },
+  { 
+    id: 2, 
+    title: "Exodus", 
+    author: "Moses", 
+    description: "Israel’s redemption story", 
+    cover: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Moses_and_the_Ten_Commandments.jpg/220px-Moses_and_the_Ten_Commandments.jpg",
+    reviews: [] 
+  }
 ];
+
 
 // Get all books
 app.get("/books", (req, res) => {
