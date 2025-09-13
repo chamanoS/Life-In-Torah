@@ -8,22 +8,47 @@ function Home() {
     title: "",
     author: "",
     description: "",
-    cover: ""
+    cover: null, // file object
   });
 
   useEffect(() => {
     axios.get("http://localhost:5000/books")
-      .then(res => setBooks(res.data));
+      .then(res => setBooks(res.data))
+      .catch(err => console.error("Error fetching books:", err));
   }, []);
 
   const addBook = (e) => {
     e.preventDefault();
-    axios.post("http://localhost:5000/books", newBook)
-      .then(res => {
-        setBooks([...books, res.data]);
-        setNewBook({ title: "", author: "", description: "", cover: "" });
-      });
+
+    if (!newBook.title || !newBook.author || !newBook.description || !newBook.cover) {
+      alert("Please fill all fields and select a cover image!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("title", newBook.title);
+    formData.append("author", newBook.author);
+    formData.append("description", newBook.description);
+    formData.append("cover", newBook.cover);
+
+    axios.post("http://localhost:5000/books", formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    })
+    .then(res => {
+      setBooks([...books, res.data]);
+      setNewBook({ title: "", author: "", description: "", cover: null });
+    })
+    .catch(err => console.error("Error uploading book:", err));
   };
+
+  // Optional: revoke object URL to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (newBook.cover) {
+        URL.revokeObjectURL(newBook.cover);
+      }
+    };
+  }, [newBook.cover]);
 
   return (
     <div style={{ padding: "20px" }}>
@@ -59,17 +84,30 @@ function Home() {
           style={{ width: "100%", margin: "5px 0", padding: "8px" }}
         />
         <input
-          type="text"
-          placeholder="Cover Image URL"
-          value={newBook.cover}
-          onChange={(e) => setNewBook({ ...newBook, cover: e.target.value })}
+          type="file"
+          accept="image/*"
+          onChange={(e) => setNewBook({ ...newBook, cover: e.target.files[0] })}
           style={{ width: "100%", margin: "5px 0", padding: "8px" }}
         />
+
+        {/* Image Preview */}
+        {newBook.cover && (
+          <img
+            src={URL.createObjectURL(newBook.cover)}
+            alt="Preview"
+            style={{ width: "100%", height: "250px", objectFit: "cover", marginBottom: "10px", borderRadius: "5px" }}
+          />
+        )}
+
         <button type="submit" style={{ marginTop: "10px" }}>Add Book</button>
       </form>
 
       {/* Book Grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "20px" }}>
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+        gap: "20px"
+      }}>
         {books.map(b => (
           <div key={b.id} style={{
             border: "1px solid #ddd",
@@ -79,10 +117,10 @@ function Home() {
             boxShadow: "0 2px 5px rgba(0,0,0,0.1)"
           }}>
             <Link to={`/books/${b.id}`} style={{ textDecoration: "none", color: "black" }}>
-              <img 
-                src={b.cover} 
-                alt={b.title} 
-                style={{ width: "100%", height: "250px", objectFit: "cover", borderRadius: "5px" }} 
+              <img
+                src={b.cover}
+                alt={b.title}
+                style={{ width: "100%", height: "250px", objectFit: "cover", borderRadius: "5px" }}
               />
               <h3 style={{ marginTop: "10px" }}>{b.title}</h3>
               <p><i>{b.author}</i></p>
