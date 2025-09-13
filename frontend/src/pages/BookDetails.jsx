@@ -27,6 +27,13 @@ function BookDetails() {
       <Link to="/">⬅ Back</Link>
       <h2>{book.title}</h2>
       <p><i>{book.author}</i></p>
+
+      <img 
+        src={book.cover} 
+        alt={book.title} 
+        style={{ width: "300px", borderRadius: "8px", marginBottom: "15px" }} 
+      />
+
       <p>{book.description}</p>
 
       <h3>Reviews</h3>
