@@ -49,4 +49,26 @@ app.post("/books/:id/reviews", (req, res) => {
   res.json(review);
 });
 
+// Add a new book
+app.post("/books", (req, res) => {
+  const { title, author, description, cover } = req.body;
+
+  if (!title || !author || !description || !cover) {
+    return res.status(400).send("All fields are required");
+  }
+
+  const newBook = {
+    id: books.length + 1,
+    title,
+    author,
+    description,
+    cover,
+    reviews: []
+  };
+
+  books.push(newBook);
+  res.status(201).json(newBook);
+});
+
+
 app.listen(5000, () => console.log("✅ Backend running at http://localhost:5000"));
